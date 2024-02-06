@@ -1,0 +1,9 @@
+package one.pawadtech.Rabbits;
+
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CagesRepository extends MongoRepository<Cage, ObjectId> {
+}
