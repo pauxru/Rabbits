@@ -86,4 +86,60 @@ public class Rabbit {
     public String getCage() {
         return cage;
     }
+
+    public void setTagNo(String tagNo) {
+        this.tagNo = tagNo;
+    }
+
+    public void setPresent(String present) {
+        this.present = present;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public void setBreed(String breed) {
+        this.breed = breed;
+    }
+
+    public void setMother(String mother) {
+        this.mother = mother;
+    }
+
+    public void setFather(String father) {
+        this.father = father;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public void setDiseases(String diseases) {
+        this.diseases = diseases;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public void setPrice_sold(String price_sold) {
+        this.price_sold = price_sold;
+    }
+
+    public void setCage(String cage) {
+        this.cage = cage;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
 }

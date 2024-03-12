@@ -26,4 +26,43 @@ public class Cage {
     @DBRef
     private List<Rabbit> tagNo;
 
+    public String getCageTag() {
+        return cageTag;
     }
+
+    public Integer getCapacity() {
+        return capacity;
+    }
+
+    public Integer getRabbitsInCage() {
+        return rabbitsInCage;
+    }
+
+    public String getMaturityDesignation() {
+        return maturityDesignation;
+    }
+
+    public List<Rabbit> getTagNo() {
+        return tagNo;
+    }
+
+    public void setCageTag(String cageTag) {
+        this.cageTag = cageTag;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    public void setRabbitsInCage(Integer rabbitsInCage) {
+        this.rabbitsInCage = rabbitsInCage;
+    }
+
+    public void setMaturityDesignation(String maturityDesignation) {
+        this.maturityDesignation = maturityDesignation;
+    }
+
+    public void setTagNo(List<Rabbit> tagNo) {
+        this.tagNo = tagNo;
+    }
+}

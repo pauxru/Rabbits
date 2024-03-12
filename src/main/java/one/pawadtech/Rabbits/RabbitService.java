@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,9 @@ public class RabbitService {
     @Autowired
     private MongoTemplate mongoTemplate;
     public List<Rabbit> allRabbits(){
-        return repository.findAll();
+        List<Rabbit> rabb = repository.findAll();
+        return rabb != null ? rabb : Collections.emptyList();
+
     }
 
     public Optional<Rabbit> findRabbitBySerialNum(String tagNum){ //findRabbitBySerialNo
@@ -27,7 +30,14 @@ public class RabbitService {
     }
 
     public List<Rabbit> getRabbitsInCage(String cageNo){
-        return repository.findByCage(cageNo);
+        List<Rabbit> rabb = repository.findByCage(cageNo);
+        return rabb != null ? rabb : Collections.emptyList();
+
+    }
+
+    public List<Rabbit> getSameSexRabbits(String Sex){
+        List<Rabbit> rabb = repository.findBySex(Sex);
+        return rabb != null ? rabb : Collections.emptyList();
     }
 
     //@Transactional

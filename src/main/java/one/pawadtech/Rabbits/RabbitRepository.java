@@ -12,4 +12,6 @@ public interface RabbitRepository extends MongoRepository<Rabbit, ObjectId> {
     Optional<Rabbit> findRabbitBytagNo(String tagNo);
 
     List<Rabbit> findByCage(String cage);
+
+    List<Rabbit> findBySex(String Sex);
 }
