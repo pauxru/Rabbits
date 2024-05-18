@@ -15,7 +15,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 
 
-@CrossOrigin(origins = "http://localhost:8000")
 @RestController
 @RequestMapping("/api/rabbits")
 public class RabbitsController {
@@ -80,13 +79,11 @@ public class RabbitsController {
 
                         try {
                             String newmating_Id = selectedMaleMate.getTagNo().substring(2, 5) + selectedFemaleMate.getTagNo().substring(2, 5);
-                            matingService.addNewMatingRecord(newmating_Id, selectedMaleMate.getTagNo(), selectedFemaleMate.getTagNo(), null, null, null, null, null, "", "", null, null);
-
+                            matingService.addNewMatingRecord(newmating_Id, selectedMaleMate.getTagNo(), selectedFemaleMate.getTagNo(), null, false, false,  null, null, null, null, "", "", null, null, null, "");
 
                         } catch (Exception e) {
                             System.out.println("Error inserting new mate session ::: " + e);
                         }
-
                     } else {
                         System.out.println("Found no eleigible Male mate");
                     }
@@ -121,11 +118,11 @@ public class RabbitsController {
 
     @PostMapping(value = "/create_rabbit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Rabbit> createRabbit(@RequestBody Map<String, String> payload){
-        System.out.println("Create Rabbit ::: ");
+        System.out.println("Create Rabbit ::: "+ payload);
         Rabbit newRabbit = new Rabbit(
                 payload.get("tagNo"),
                 payload.get("present"),
-                parseDateString(payload.get("birthday")),
+                payload.get("birthday"),
                 payload.get("breed"),
                 payload.get("mother"),
                 payload.get("father"),
@@ -223,7 +220,7 @@ class GetMatingToDo{
 
             // Must be of age
             try {
-                if(dateService.durationFrom(rabbit.getBirthday()).toDays() < 15){
+                if(dateService.StrdurationFrom(rabbit.getBirthday()).toDays() < 15){
                     continue;
                 }
 
@@ -244,7 +241,7 @@ class GetMatingToDo{
         if(processedRabbits.size() > 1) {
             long OldestAge = 0;
             for (Rabbit selectedRabbit : processedRabbits) {
-                long currRabbitAge = dateService.durationFrom(selectedRabbit.getBirthday()).toDays();
+                long currRabbitAge = dateService.StrdurationFrom(selectedRabbit.getBirthday()).toDays();
                 if(currRabbitAge > OldestAge){
                     OldestAge = currRabbitAge;
                     oldestTag = selectedRabbit.getTagNo().toString();
@@ -274,7 +271,7 @@ class GetMatingToDo{
             }
             // Must be of age
             try {
-                if(dateService.durationFrom(rabbit.getBirthday()).toDays() < 15){
+                if(dateService.StrdurationFrom(rabbit.getBirthday()).toDays() < 15){
                     continue;
                 }
 
@@ -312,7 +309,7 @@ class GetMatingToDo{
         if(processedMaleRabbits.size() > 1) {
             long OldestAge = 0;
             for (Rabbit selectedRabbit : processedMaleRabbits) {
-                long currRabbitAge = dateService.durationFrom(selectedRabbit.getBirthday()).toDays();
+                long currRabbitAge = dateService.StrdurationFrom(selectedRabbit.getBirthday()).toDays();
                 if(currRabbitAge > OldestAge){
                     OldestAge = currRabbitAge;
                     oldestTag = selectedRabbit.getTagNo().toString();

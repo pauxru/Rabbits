@@ -3,9 +3,7 @@ package one.pawadtech.Rabbits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CheckMatingActions {
@@ -17,6 +15,7 @@ public class CheckMatingActions {
     private static TasksService tasksService;
     @Autowired
     private  DateService dateService=null;
+
 
     @Autowired
     public CheckMatingActions(
@@ -59,7 +58,15 @@ public class CheckMatingActions {
         }
     }
 
-    public void createTask(String refId, String msg){
+    private Map<String, String> answerDataMap(String... required){
+        Map<String, String> AnswerDataMap = new HashMap<>();
+        for(String req: required){
+            AnswerDataMap.put(req,"~ ");
+        }
+        return AnswerDataMap;
+    }
+
+    public void createTask(String refId, String taskType, String msg, String answerData){
         System.out.println("Here to create a new tasks");
         String introDate = dateService.getTodayDateString();
         List<Tasks> todayTasks = tasksService.getTasksByIntroDate(introDate);
@@ -74,7 +81,7 @@ public class CheckMatingActions {
 
         System.out.println("TASK ID ::: "+taskRef);
         System.out.println("TASK MESSAGE ::: "+msg);
-        Tasks newTask = new Tasks(taskRef, "Mating", refId, introDate, false, null, msg);
+        Tasks newTask = new Tasks(taskRef, taskType, refId, introDate, false, null, msg, answerData);
         tasksService.createTask(newTask);
     }
 
@@ -106,9 +113,8 @@ public class CheckMatingActions {
             if(hcd != null){
                 System.out.println("Health Checked on ::: "+mating.getHealth_checked_date());
             }else{
-
-                createTask(matingID, "Check the health of Female "+ mating.getFemale() + " in cage "+female.getCage());
-                createTask(matingID, "Check the health of Male "+ mating.getMale() + " in cage "+male.getCage());
+                createTask(matingID, "CheckHealth", "Check the health of Female "+ mating.getFemale() + " in cage "+female.getCage(),"~ ");
+                createTask(matingID, "CheckHealth","Check the health of Male "+ mating.getMale() + " in cage "+male.getCage(),"~ ");
                 continue;
             }
 
@@ -119,7 +125,7 @@ public class CheckMatingActions {
             }else{
                 String msg = "Move female "+ mating.getMale() + " in cage "+female.getCage() +" to cage ";
                 msg += male.getCage() + " to mate with male " + mating.getMale();
-                createTask(matingID, msg);
+                createTask(matingID,"MateFrom", msg,"~ ");
                 continue;
             }
 
@@ -129,7 +135,7 @@ public class CheckMatingActions {
                 System.out.println("Endend mating on ::: "+mating.getMate_from());
             }else{
                 if(dateService.durationFrom(mateFrm).toHours() > 72){
-                    createTask(matingID, "Remove Female "+ mating.getFemale() + " from cage "+ mating.getCage() +" to its original cage "+ female.getCage());
+                    createTask(matingID,"MateTo", "Remove Female "+ mating.getFemale() + " from cage "+ mating.getCage() +" to its original cage "+ female.getCage(), "~ ");
                     continue;
                 }
             }
@@ -137,7 +143,7 @@ public class CheckMatingActions {
             //************** Check if pregnanant *************//
             if(mating.getPregnancy_confirmed().equalsIgnoreCase("") || mating.getPregnancy_confirmed().equalsIgnoreCase("0")){
                 if(dateService.durationFrom(mateTo).toDays() > 13) {
-                    createTask(matingID, "Check if Female " + mating.getFemale() + " in cage " + female.getCage() + " is pregnant");
+                    createTask(matingID,"CheckPregnancy", "Check if Female " + mating.getFemale() + " in cage " + female.getCage() + " is pregnant", "~ ");
                     continue;
                 }
             }
@@ -145,7 +151,7 @@ public class CheckMatingActions {
             //************** Put kindling basket *************//
             if(mating.getPregnancy_confirmed().equalsIgnoreCase("1")){
                 if(dateService.durationFrom(mateFrm).toDays() > 25) {
-                    createTask(matingID, "Put kindling basket for Female " + mating.getFemale() + " in cage " + female.getCage());
+                    createTask(matingID,"PutNesting", "Put kindling basket for Female " + mating.getFemale() + " in cage " + female.getCage(), "~ ");
                     continue;
                 }
             }
@@ -153,7 +159,7 @@ public class CheckMatingActions {
             //************** Has it given birth yet *************//
             if(mating.getPregnancy_confirmed().equalsIgnoreCase("1")){
                 if(dateService.durationFrom(mateFrm).toDays() > 26) {
-                    createTask(matingID, "Has Female " + mating.getFemale() + " in cage " + female.getCage() + " given birth?");
+                    createTask(matingID,"ActualBirthday", "Has Female " + mating.getFemale() + " in cage " + female.getCage() + " given birth?", "~ ");
                     continue;
                 }
             }

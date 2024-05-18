@@ -21,7 +21,7 @@ public class Rabbit {
     private ObjectId serialNo;
     private String tagNo;
     private String present;
-    private Date birthday;
+    private String birthday;
     private String breed;
     private String mother;
     private String father;
@@ -34,7 +34,7 @@ public class Rabbit {
     private String cage;
     private List<String> images;
 
-    public Rabbit(String tagNo, String present, Date birthday, String breed, String mother, String father, String sex, String origin, String diseases, String comments, String weight, String price_sold, String cage, List<String> images) {
+    public Rabbit(String tagNo, String present, String birthday, String breed, String mother, String father, String sex, String origin, String diseases, String comments, String weight, String price_sold, String cage, List<String> images) {
         this.tagNo = tagNo;
         this.birthday = birthday;
         this.present = present;
@@ -59,7 +59,7 @@ public class Rabbit {
         return present;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 
@@ -95,7 +95,7 @@ public class Rabbit {
         this.present = present;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(String birthday) {
         this.birthday = birthday;
     }
 

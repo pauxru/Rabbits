@@ -21,28 +21,36 @@ public class Mating {
     private String male;
     private String female;
     private Date healthCheckedDate;
+    private boolean femaleHealthOkay;
+    private boolean maleHealthOkay;
     private Date mate_from;
     private Date mate_to;
     private Date f_last_mate;
     private Date m_last_mate;
     private String cage;
     private String pregnancy_confirmed;
+    private String pregnancy_confirmedDate;
     private Date expected_birth_date;
     private Date cage_prep_date;
+    private String actualBirthDate;
 
-    public Mating(String matingNum, String male, String female, Date healthCheckedDate, Date mate_from, Date mate_to, Date f_last_mate, Date m_last_mate, String cage, String pregnancy_confirmed, Date expected_birth_date, Date cage_prep_date){
+    public Mating(String matingNum, String male, String female, Date healthCheckedDate, boolean femaleHealthOkay, boolean maleHealthOkay, Date mate_from, Date mate_to, Date f_last_mate, Date m_last_mate, String cage, String pregnancy_confirmed, String pregnancy_confirmedDate, Date expected_birth_date, Date cage_prep_date, String actualBirthDate){
         this.matingNum = matingNum;
         this.male = male;
         this.female = female;
         this.healthCheckedDate = healthCheckedDate;
+        this.femaleHealthOkay = femaleHealthOkay;
+        this.maleHealthOkay = maleHealthOkay;
         this.mate_from = mate_from;
         this.mate_to = mate_to;
         this.f_last_mate = f_last_mate;
         this.m_last_mate = m_last_mate;
         this.cage = cage;
         this.pregnancy_confirmed = pregnancy_confirmed;
+        this.pregnancy_confirmedDate = pregnancy_confirmedDate;
         this.expected_birth_date = expected_birth_date;
         this.cage_prep_date = cage_prep_date;
+        this.actualBirthDate = actualBirthDate;
     }
 
 
@@ -86,6 +94,14 @@ public class Mating {
         return pregnancy_confirmed;
     }
 
+    public String getPregnancy_confirmedDate() {
+        return pregnancy_confirmedDate;
+    }
+
+    public void setPregnancy_confirmedDate(String pregnancy_confirmedDate) {
+        this.pregnancy_confirmedDate = pregnancy_confirmedDate;
+    }
+
     public Date getExpected_birth_date() {
         return expected_birth_date;
     }
@@ -124,6 +140,38 @@ public class Mating {
 
     public void setM_last_mate(Date m_last_mate) {
         this.m_last_mate = m_last_mate;
+    }
+
+    public void setHealthCheckedDate(Date healthCheckedDate) {
+        this.healthCheckedDate = healthCheckedDate;
+    }
+
+    public void setFemaleHealthOkay(boolean femaleHealthOkay) {
+        this.femaleHealthOkay = femaleHealthOkay;
+    }
+
+    public void setMaleHealthOkay(boolean maleHealthOkay) {
+        this.maleHealthOkay = maleHealthOkay;
+    }
+
+    public Date getHealthCheckedDate() {
+        return healthCheckedDate;
+    }
+
+    public boolean isFemaleHealthOkay() {
+        return femaleHealthOkay;
+    }
+
+    public boolean isMaleHealthOkay() {
+        return maleHealthOkay;
+    }
+
+    public String getActualBirthDate() {
+        return actualBirthDate;
+    }
+
+    public void setActualBirthDate(String actualBirthDate) {
+        this.actualBirthDate = actualBirthDate;
     }
 
     public void setCage(String cage) {

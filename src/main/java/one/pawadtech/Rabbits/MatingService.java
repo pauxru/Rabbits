@@ -53,12 +53,12 @@ public class MatingService {
         return Optional.ofNullable(latestMating);
     }
 
-    public Mating addNewMatingRecord(String mating_id, String male, String female, Date healthCheckedDate, Date mateFrom, Date mateTo,
-                                     Date fLastMate, Date mLastMate, String cage, String pregnancyConfirmed,
-                                     Date expectedBirthDate, Date cagePrepDate) {
+    public Mating addNewMatingRecord(String mating_id, String male, String female, Date healthCheckedDate, boolean femaleHealthOkay, boolean maleHealthOkay, Date mateFrom, Date mateTo,
+                                     Date fLastMate, Date mLastMate, String cage, String pregnancyConfirmed, String pregnancy_confirmedDate,
+                                     Date expectedBirthDate, Date cagePrepDate, String actualBirthDate) {
 
-        Mating newMatingRecord = new Mating(mating_id, male, female, healthCheckedDate, mateFrom, mateTo, fLastMate, mLastMate,
-                cage, pregnancyConfirmed, expectedBirthDate, cagePrepDate);
+        Mating newMatingRecord = new Mating(mating_id, male, female, healthCheckedDate,femaleHealthOkay,maleHealthOkay, mateFrom, mateTo, fLastMate, mLastMate,
+                cage, pregnancyConfirmed,pregnancy_confirmedDate, expectedBirthDate, cagePrepDate, actualBirthDate);
 
         System.out.println("Inserted a new Mating class record");
         return repository.save(newMatingRecord);

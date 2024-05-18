@@ -32,12 +32,22 @@ public class DateService {
         return Duration.between(date, Instant.now());
     }
 
+    public Duration StrdurationFrom(String pastDate){
+        //LocalDate parsedDate = parseDateString(dateStringFromDB);
+        Date dateStr = parseDateString(pastDate);
+        Instant date = dateStr.toInstant();
+        System.out.println("DOB ::: "+date +"  Now::: "+Instant.now());
+        // Calculate the duration between the two date-time values
+        return Duration.between(date, Instant.now());
+    }
+
     public String getTodayDateString() {
         // Create a Date object representing the current date
         Date currentDate = new Date();
-
+        System.out.println("TOday's Date ::: "+ currentDate);
         // Create a SimpleDateFormat object with the desired format
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        System.out.println("TOday's Date ::: "+ dateFormat.format(currentDate));
 
         // Format the Date object and return the result
         return dateFormat.format(currentDate);

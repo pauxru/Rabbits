@@ -42,6 +42,7 @@ public class RabbitService {
 
     //@Transactional
     public Rabbit createRabbit(Rabbit newRabbit) {
+        System.out.println("BIRTHDAY ::: "+ newRabbit.getBirthday());
         // Save the rabbit to the Rabbit collection
         Rabbit savedRabbit = repository.save(newRabbit);
 

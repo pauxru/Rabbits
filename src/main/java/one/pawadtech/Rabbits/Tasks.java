@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.Map;
 
 @Document(collection = "Tasks")
 @Data
@@ -24,7 +25,9 @@ public class Tasks {
     private String taskCloseDate;
     private String taskMessage;
 
-    public Tasks(String taskRef, String taskType, String matingIdRef, String taskIntroDate, boolean closed, String taskCloseDate, String taskMessage) {
+    private String answerData;
+
+    public Tasks(String taskRef, String taskType, String matingIdRef, String taskIntroDate, boolean closed, String taskCloseDate, String taskMessage, String answerData) {
         this.taskRef = taskRef;
         this.taskType = taskType;
         this.matingIdRef = matingIdRef;
@@ -32,6 +35,7 @@ public class Tasks {
         this.closed = closed;
         this.taskCloseDate = taskCloseDate;
         this.taskMessage = taskMessage;
+        this.answerData = answerData;
     }
 
     // getters and setters
@@ -68,6 +72,10 @@ public class Tasks {
         this.taskIntroDate = taskIntroDate;
     }
 
+    public void setAnswerData(String answerData) {
+        this.answerData = answerData;
+    }
+
     public boolean isClosed() {
         return closed;
     }
@@ -90,5 +98,9 @@ public class Tasks {
 
     public void setTaskMessage(String taskMessage) {
         this.taskMessage = taskMessage;
+    }
+
+    public String getAnswerData() {
+        return answerData;
     }
 }
