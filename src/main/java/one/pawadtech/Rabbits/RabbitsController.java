@@ -2,6 +2,8 @@ package one.pawadtech.Rabbits;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,111 +16,120 @@ import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
-
 @RestController
 @RequestMapping("/api/rabbits")
 public class RabbitsController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RabbitsController.class);
+
     LocalDate Today = LocalDate.now();
     @Autowired
     private RabbitService service;
-
 
     private CheckMatingActions checkMatingActions;
 
     public RabbitsController(CheckMatingActions checkMatingActions) {
         this.checkMatingActions = checkMatingActions;
     }
+
     @Autowired
     private MatingService matingService;
 
     @Autowired
     private GetMatingToDo getMatingToDo;  // Inject GetMatingToDo
+
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<Rabbit>> getAllRabbits(){
-        System.out.println("ALL ::: "+ service.allRabbits());
-        return new ResponseEntity<List<Rabbit>>( service.allRabbits(), HttpStatus.OK);
+    public ResponseEntity<List<Rabbit>> getAllRabbits() {
+        List<Rabbit> allRabbits = service.allRabbits();
+        logger.info("ALL ::: " + allRabbits);
+        System.out.println("ALL ::: " + allRabbits);
+        return new ResponseEntity<>(allRabbits, HttpStatus.OK);
     }
 
     @GetMapping("/manageMatings")
-    public ResponseEntity<String> manageMatingStuff(){
-        return new ResponseEntity<String>(checkMatingActions.manageMatings(), HttpStatus.OK);
-
+    public ResponseEntity<String> manageMatingStuff() {
+        String result = checkMatingActions.manageMatings();
+        logger.info("Manage Matings ::: " + result);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("getAll/{sex}")
-    public ResponseEntity<List<Rabbit>> getAllSameSexRabbits(@PathVariable String sex){
-        return new ResponseEntity<List<Rabbit>>( service.getSameSexRabbits(sex), HttpStatus.OK);
-
+    public ResponseEntity<List<Rabbit>> getAllSameSexRabbits(@PathVariable String sex) {
+        List<Rabbit> sameSexRabbits = service.getSameSexRabbits(sex);
+        logger.info("Get All Same Sex Rabbits for sex " + sex + " ::: " + sameSexRabbits);
+        return new ResponseEntity<>(sameSexRabbits, HttpStatus.OK);
     }
 
-
     @GetMapping("/createNewMating")
-    public ResponseEntity<List<String>> getToDoItems(){
+    public ResponseEntity<List<String>> getToDoItems() {
+        logger.info("Getting the to do items");
         System.out.println("Getting the to do items");
-        // Call the getAllRabbits method to retrieve the list of rabbits
+
         ResponseEntity<List<Rabbit>> femaleResponseEntity = getAllSameSexRabbits("female");
 
-
-        // Check if the response is successful
         if (femaleResponseEntity.getStatusCode() == HttpStatus.OK) {
-            // Get the list of rabbits from the response body
             List<Rabbit> femaleRabbits = femaleResponseEntity.getBody();
-            //GetMatingToDo ToDo = new GetMatingToDo();
             Rabbit selectedFemaleMate = getMatingToDo.GetFemaleMate(femaleRabbits);
-            if(selectedFemaleMate != null) {
+            if (selectedFemaleMate != null) {
+                logger.info("Female Rabbit::: " + selectedFemaleMate.getTagNo());
                 System.out.println("Female Rabbit::: " + selectedFemaleMate.getTagNo());
 
                 ResponseEntity<List<Rabbit>> maleResponseEntity = getAllSameSexRabbits("male");
-                if (maleResponseEntity.getStatusCode() == HttpStatus.OK){
+                if (maleResponseEntity.getStatusCode() == HttpStatus.OK) {
                     List<Rabbit> maleRabbits = maleResponseEntity.getBody();
                     Rabbit selectedMaleMate = getMatingToDo.selectMaleMate(selectedFemaleMate, maleRabbits);
                     if (selectedMaleMate != null) {
+                        logger.info("Male Rabbit::: " + selectedMaleMate.getTagNo());
                         System.out.println("Male Rabbit::: " + selectedMaleMate.getTagNo());
 
                         try {
                             String newmating_Id = selectedMaleMate.getTagNo().substring(2, 5) + selectedFemaleMate.getTagNo().substring(2, 5);
                             matingService.addNewMatingRecord(newmating_Id, selectedMaleMate.getTagNo(), selectedFemaleMate.getTagNo(), null, false, false,  null, null, null, null, "", "", null, null, null, "");
-
                         } catch (Exception e) {
+                            logger.error("Error inserting new mate session ::: " + e.getMessage(), e);
                             System.out.println("Error inserting new mate session ::: " + e);
                         }
                     } else {
-                        System.out.println("Found no eleigible Male mate");
+                        logger.info("Found no eligible Male mate");
+                        System.out.println("Found no eligible Male mate");
                     }
-                }else {
-                    // If the response is not successful, return an appropriate error response
+                } else {
+                    logger.error("Error retrieving male rabbits");
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-            }else {
-                System.out.println("Found no eleigible female mate");
+            } else {
+                logger.info("Found no eligible female mate");
+                System.out.println("Found no eligible female mate");
             }
 
-            String MatingInitialTask = "";
-
-            // Return the processed rabbits as a response
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            // If the response is not successful, return an appropriate error response
+            logger.error("Error retrieving female rabbits");
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @GetMapping("/cage/{cageNo}")
-    public List<Rabbit> getRabbitsInCage(@PathVariable String cageNo){
-        return service.getRabbitsInCage(cageNo);
+    public List<Rabbit> getRabbitsInCage(@PathVariable String cageNo) {
+        List<Rabbit> rabbitsInCage = service.getRabbitsInCage(cageNo);
+        logger.info("Rabbits in Cage " + cageNo + " ::: " + rabbitsInCage);
+        return rabbitsInCage;
     }
+
     @GetMapping("/{tagNo}")
-    public ResponseEntity<Optional<Rabbit>> getSingleRabbit(@PathVariable String tagNo){
-        System.out.println("BY TAG ::: "+ service.findRabbitBySerialNum(tagNo));
-        return  new ResponseEntity<Optional<Rabbit>>(service.findRabbitBySerialNum(tagNo), HttpStatus.OK);
+    public ResponseEntity<Optional<Rabbit>> getSingleRabbit(@PathVariable String tagNo) {
+        Optional<Rabbit> rabbit = service.findRabbitBySerialNum(tagNo);
+        logger.info("BY TAG ::: " + rabbit);
+        System.out.println("BY TAG ::: " + rabbit);
+        return new ResponseEntity<>(rabbit, HttpStatus.OK);
     }
 
     @PostMapping(value = "/create_rabbit", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Rabbit> createRabbit(@RequestBody Map<String, String> payload){
-        System.out.println("Create Rabbit ::: "+ payload);
+    public ResponseEntity<Rabbit> createRabbit(@RequestBody Map<String, String> payload) {
+        logger.info("Create Rabbit ::: " + payload);
+        System.out.println("Create Rabbit ::: " + payload);
+
         Rabbit newRabbit = new Rabbit(
                 payload.get("tagNo"),
                 payload.get("present"),
@@ -137,118 +148,118 @@ public class RabbitsController {
         );
         Rabbit createdRabbit = service.createRabbit(newRabbit);
         return new ResponseEntity<>(createdRabbit, HttpStatus.CREATED);
-
     }
+
     private Date parseDateString(String dateString) {
-        // Implement the logic to parse the string to a Date
-        // For example, use java.time.LocalDate
         try {
             return java.sql.Date.valueOf(LocalDate.parse(dateString));
         } catch (DateTimeParseException e) {
-            // Handle parsing exception appropriately
-            e.printStackTrace();
+            logger.error("Error parsing date string: " + dateString, e);
             return null;
         }
     }
 
-    // Helper method to parse a string representing a list of images
     private List<String> parseImages(String imagesString) {
         ObjectMapper objectMapper = new ObjectMapper();
-
         try {
-            // Attempt to deserialize the input string as a list of strings
             return objectMapper.readValue(imagesString, new TypeReference<List<String>>() {});
         } catch (IOException e) {
-            // Handle the exception appropriately (e.g., log it, return a default value)
-            e.printStackTrace();
+            logger.error("Error parsing images string: " + imagesString, e);
             return Collections.emptyList(); // or another appropriate default value
         }
     }
-
 }
 
 @Component
-class GetMatingToDo{
+class GetMatingToDo {
+
+    private static final Logger logger = LoggerFactory.getLogger(GetMatingToDo.class);
 
     @Autowired
-    private static DateService dateService=null;
+    private static DateService dateService = null;
 
     private static MatingService matingService = null;
+
     @Autowired
     public GetMatingToDo(MatingService matingService) {
         this.matingService = matingService;
     }
+
     public Rabbit GetFemaleMate(List<Rabbit> rabbits) {
+        logger.info("Here to get female mate");
         System.out.println("Here to get female mate");
 
-        // Process the list of rabbits (for example, convert them to strings)
         List<Rabbit> processedRabbits = new ArrayList<>();
         for (Rabbit rabbit : rabbits) {
+            logger.info("PROCESSING ::: " + rabbit.getTagNo());
+            System.out.println("PROCESSING ::: " + rabbit.getTagNo());
 
-            System.out.println("PROCESSING ::: "+rabbit.getTagNo());
-            //List<Mating> mating = matingService.findAllMating();
             Optional<Mating> mating = matingService.findLatestMatingByFemale(rabbit.getTagNo().toString());
-
             if (mating.isPresent()) {
                 Mating mate = mating.get();
-                System.out.println("Tag NO ::: "+rabbit.getTagNo()+" -> Mating ID::: "+ mate.getMatingNum());
-
+                logger.info("Tag NO ::: " + rabbit.getTagNo() + " -> Mating ID::: " + mate.getMatingNum());
+                System.out.println("Tag NO ::: " + rabbit.getTagNo() + " -> Mating ID::: " + mate.getMatingNum());
 
                 long matingDuration = 0;
-                if(Optional.ofNullable(mate.getMate_to()).isPresent()){
+                if (Optional.ofNullable(mate.getMate_to()).isPresent()) {
                     matingDuration = dateService.durationFrom(mate.getMate_to()).toDays();
                 }
-                System.out.println(rabbit.getTagNo()+" >> Mating duration :: "+ matingDuration);
-                if(matingDuration < 14){
-                    System.out.println(rabbit.getTagNo()+" : Female served recently");
+                logger.info(rabbit.getTagNo() + " >> Mating duration :: " + matingDuration);
+                System.out.println(rabbit.getTagNo() + " >> Mating duration :: " + matingDuration);
+                if (matingDuration < 14) {
+                    logger.info(rabbit.getTagNo() + " : Female served recently");
+                    System.out.println(rabbit.getTagNo() + " : Female served recently");
                     continue;
-                }else {
-                    if(!mate.getPregnancy_confirmed().toString().isEmpty()) {
+                } else {
+                    if (!mate.getPregnancy_confirmed().toString().isEmpty()) {
                         if (mate.getPregnancy_confirmed().toString().equalsIgnoreCase("1")) {
+                            logger.info(rabbit.getTagNo() + " : Female pregnant");
                             System.out.println(rabbit.getTagNo() + " : Female pregnant");
                             continue;
                         }
-                    }else{
-                        System.out.println(rabbit.getTagNo()+" : Pregnancy not confirmed yet");
+                    } else {
+                        logger.info(rabbit.getTagNo() + " : Pregnancy not confirmed yet");
+                        System.out.println(rabbit.getTagNo() + " : Pregnancy not confirmed yet");
                         continue;
                     }
-                    System.out.println(rabbit.getTagNo()+" : Not served recently but failed. check it out");
+                    logger.info(rabbit.getTagNo() + " : Not served recently but failed. check it out");
+                    System.out.println(rabbit.getTagNo() + " : Not served recently but failed. check it out");
                 }
-            }else{
-                System.out.println("Tag NO ::: "+rabbit.getTagNo()+" -> No mating History");
+            } else {
+                logger.info("Tag NO ::: " + rabbit.getTagNo() + " -> No mating History");
+                System.out.println("Tag NO ::: " + rabbit.getTagNo() + " -> No mating History");
             }
 
-            // Must be of age
             try {
-                if(dateService.StrdurationFrom(rabbit.getBirthday()).toDays() < 15){
+                if (dateService.StrdurationFrom(rabbit.getBirthday()).toDays() < 15) {
                     continue;
                 }
-
             } catch (DateTimeParseException e) {
-                // Handle the parsing exception
+                logger.error("Error parsing date: " + e.getMessage(), e);
                 System.err.println("Error parsing date: " + e.getMessage());
                 continue;
-            } catch (NullPointerException ee){
+            } catch (NullPointerException ee) {
+                logger.error("Error parsing date: " + ee.getMessage(), ee);
                 System.err.println("Error parsing date: " + ee.getMessage());
                 continue;
             }
 
             processedRabbits.add(rabbit);
-
         }
+
         Rabbit OneSelected = null;
         String oldestTag = "";
-        if(processedRabbits.size() > 1) {
+        if (processedRabbits.size() > 1) {
             long OldestAge = 0;
             for (Rabbit selectedRabbit : processedRabbits) {
                 long currRabbitAge = dateService.StrdurationFrom(selectedRabbit.getBirthday()).toDays();
-                if(currRabbitAge > OldestAge){
+                if (currRabbitAge > OldestAge) {
                     OldestAge = currRabbitAge;
                     oldestTag = selectedRabbit.getTagNo().toString();
                     OneSelected = selectedRabbit;
                 }
             }
-        }else if(processedRabbits.size() == 1) {
+        } else if (processedRabbits.size() == 1) {
             oldestTag = processedRabbits.get(0).getTagNo().toString();
             OneSelected = processedRabbits.get(0);
         }
@@ -256,77 +267,75 @@ class GetMatingToDo{
         return OneSelected;
     }
 
-    public static Rabbit selectMaleMate(Rabbit femaleMate, List<Rabbit> rabbits){
+    public static Rabbit selectMaleMate(Rabbit femaleMate, List<Rabbit> rabbits) {
         List<Rabbit> processedMaleRabbits = new ArrayList<>();
         for (Rabbit rabbit : rabbits) {
-
-            // Must not be rated to the female
-            if(femaleMate.getMother().toString().equalsIgnoreCase(rabbit.getMother().toString())){
-                System.out.println("Same Mother for "+ femaleMate.getTagNo().toString()+ " and "+ rabbit.getTagNo().toString());
+            if (femaleMate.getMother().toString().equalsIgnoreCase(rabbit.getMother().toString())) {
+                logger.info("Same Mother for " + femaleMate.getTagNo().toString() + " and " + rabbit.getTagNo().toString());
+                System.out.println("Same Mother for " + femaleMate.getTagNo().toString() + " and " + rabbit.getTagNo().toString());
                 continue;
             }
-            if(femaleMate.getFather().toString().equalsIgnoreCase(rabbit.getFather().toString())){
-                System.out.println("Same Father for "+ femaleMate.getTagNo().toString()+ " and "+ rabbit.getTagNo().toString());
+            if (femaleMate.getFather().toString().equalsIgnoreCase(rabbit.getFather().toString())) {
+                logger.info("Same Father for " + femaleMate.getTagNo().toString() + " and " + rabbit.getTagNo().toString());
+                System.out.println("Same Father for " + femaleMate.getTagNo().toString() + " and " + rabbit.getTagNo().toString());
                 continue;
             }
-            // Must be of age
             try {
-                if(dateService.StrdurationFrom(rabbit.getBirthday()).toDays() < 15){
+                if (dateService.StrdurationFrom(rabbit.getBirthday()).toDays() < 15) {
                     continue;
                 }
-
             } catch (DateTimeParseException e) {
-                // Handle the parsing exception
+                logger.error("Error parsing date: " + e.getMessage(), e);
                 System.err.println("Error parsing date: " + e.getMessage());
                 continue;
-            } catch (NullPointerException ee){
+            } catch (NullPointerException ee) {
+                logger.error("Error parsing date: " + ee.getMessage(), ee);
                 System.err.println("Error parsing date: " + ee.getMessage());
                 continue;
             }
-            //List<Mating> mating = matingService.findAllMating();
-            Optional<Mating> mating = matingService.findLatestMatingByMale(rabbit.getTagNo().toString());
 
+            Optional<Mating> mating = matingService.findLatestMatingByMale(rabbit.getTagNo().toString());
             if (mating.isPresent()) {
                 Mating mate = mating.get();
-                System.out.println("Tag NO ::: "+rabbit.getTagNo()+" -> Mating ID::: "+ mate.getMatingNum());
+                logger.info("Tag NO ::: " + rabbit.getTagNo() + " -> Mating ID::: " + mate.getMatingNum());
+                System.out.println("Tag NO ::: " + rabbit.getTagNo() + " -> Mating ID::: " + mate.getMatingNum());
 
                 long maleLastServe = 0;
-                if(Optional.ofNullable(mate.getMate_to()).isPresent()){
+                if (Optional.ofNullable(mate.getMate_to()).isPresent()) {
                     maleLastServe = dateService.durationFrom(mate.getMate_to()).toDays();
                 }
-                if(maleLastServe < 5){
+                if (maleLastServe < 5) {
+                    logger.info("Male served recently");
                     System.out.println("Male served recently");
                     continue;
                 }
-            }else{
-                System.out.println("Tag NO ::: "+rabbit.getTagNo()+" -> No mating History");
+            } else {
+                logger.info("Tag NO ::: " + rabbit.getTagNo() + " -> No mating History");
+                System.out.println("Tag NO ::: " + rabbit.getTagNo() + " -> No mating History");
             }
             processedMaleRabbits.add(rabbit);
         }
-        System.out.println("processedMaleRabbits ::: "+processedMaleRabbits);
+
+        logger.info("processedMaleRabbits ::: " + processedMaleRabbits);
+        System.out.println("processedMaleRabbits ::: " + processedMaleRabbits);
+
         Rabbit OneSelected = null;
         String oldestTag = "";
-        if(processedMaleRabbits.size() > 1) {
+        if (processedMaleRabbits.size() > 1) {
             long OldestAge = 0;
             for (Rabbit selectedRabbit : processedMaleRabbits) {
                 long currRabbitAge = dateService.StrdurationFrom(selectedRabbit.getBirthday()).toDays();
-                if(currRabbitAge > OldestAge){
+                if (currRabbitAge > OldestAge) {
                     OldestAge = currRabbitAge;
                     oldestTag = selectedRabbit.getTagNo().toString();
                     OneSelected = selectedRabbit;
                 }
             }
-        }else if(processedMaleRabbits.size() == 1) {
+        } else if (processedMaleRabbits.size() == 1) {
             oldestTag = processedMaleRabbits.get(0).getTagNo().toString();
             OneSelected = processedMaleRabbits.get(0);
         }
 
         return OneSelected;
-
     }
-
-
-
-
 }
-

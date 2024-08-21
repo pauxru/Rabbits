@@ -1,5 +1,7 @@
 package one.pawadtech.Rabbits;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -11,71 +13,69 @@ import java.util.TimeZone;
 
 @Service
 public class DateService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DateService.class);
+
     public Date parseDateString(String dateString) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("EAT"));
 
         try {
+            logger.info("Parsing date string: {}", dateString);
             return dateFormat.parse(dateString);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error("Failed to parse date string: {}", dateString, e);
             return null;
         }
     }
 
-    public Duration durationFrom(Date pastDate){
-        //LocalDate parsedDate = parseDateString(dateStringFromDB);
+    public Duration durationFrom(Date pastDate) {
         Date dateStr = parseDateString(pastDate.toString());
+        if (dateStr == null) {
+            logger.warn("Failed to parse past date: {}", pastDate);
+            return Duration.ZERO;
+        }
         Instant date = dateStr.toInstant();
-        System.out.println("DOB ::: "+date +"  Now::: "+Instant.now());
-        // Calculate the duration between the two date-time values
+        logger.info("Calculating duration from: {}", date);
+        System.out.println("DOB ::: " + date + "  Now::: " + Instant.now());
         return Duration.between(date, Instant.now());
     }
 
-    public Duration StrdurationFrom(String pastDate){
-        //LocalDate parsedDate = parseDateString(dateStringFromDB);
+    public Duration StrdurationFrom(String pastDate) {
         Date dateStr = parseDateString(pastDate);
+        if (dateStr == null) {
+            logger.warn("Failed to parse past date string: {}", pastDate);
+            return Duration.ZERO;
+        }
         Instant date = dateStr.toInstant();
-        System.out.println("DOB ::: "+date +"  Now::: "+Instant.now());
-        // Calculate the duration between the two date-time values
+        logger.info("Calculating duration from string date: {}", date);
+        System.out.println("DOB ::: " + date + "  Now::: " + Instant.now());
         return Duration.between(date, Instant.now());
     }
 
     public String getTodayDateString() {
-        // Create a Date object representing the current date
         Date currentDate = new Date();
-        System.out.println("TOday's Date ::: "+ currentDate);
-        // Create a SimpleDateFormat object with the desired format
+        logger.info("Getting today's date string for date: {}", currentDate);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        System.out.println("TOday's Date ::: "+ dateFormat.format(currentDate));
-
-        // Format the Date object and return the result
+        System.out.println("Today's Date ::: " + dateFormat.format(currentDate));
         return dateFormat.format(currentDate);
     }
 
     public String concatTodayDateString() {
-        // Create a Date object representing the current date
         Date currentDate = new Date();
-
-        // Create a SimpleDateFormat object with the desired format
+        logger.info("Concatenating today's date string for date: {}", currentDate);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        // Format the Date object and return the result
         String[] re = dateFormat.format(currentDate).split("/");
         return re[0].trim() + re[1].trim() + re[2].trim();
-
-
     }
 
     public Date convertDateStringToDate(String dateString) {
-        // Create a SimpleDateFormat object with the desired format
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
         try {
-            // Parse the input String to a Date object
+            logger.info("Converting date string to Date object: {}", dateString);
             return dateFormat.parse(dateString);
         } catch (ParseException e) {
-            e.printStackTrace(); // Handle the exception as needed
+            logger.error("Failed to convert date string: {}", dateString, e);
             return null;
         }
     }
